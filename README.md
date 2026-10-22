@@ -2,7 +2,7 @@
 
 My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
 
-> **Status:** Phase 2 done. WSL shell (zsh + bash fallback), git, mise, and apt packages are managed, and the bootstrap is tested on a clean Ubuntu 26.04 container.
+> **Status:** Phases 0–2 done, Phase 4 in progress. The WSL shell (zsh + bash fallback), git, SSH config, mise tools (including gh and gitleaks), and apt packages are managed. The bootstrap is tested on a clean Ubuntu 26.04 container.
 
 ## Usage
 
@@ -86,7 +86,7 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 1:** inventory ([docs/inventory.md](docs/inventory.md))
 - [x] **Phase 2:** MVP on WSL (zsh, git, mise, apt), tested on a clean container
 - [ ] **Phase 3:** Windows side (`.wslconfig`, Terminal, Cursor, winget configure)
-- [ ] **Phase 4:** secrets + SSH (Bitwarden, age, gitleaks)
+- [ ] **Phase 4:** secrets + SSH. Done: SSH config, gh, gitleaks history scan. Pending: Bitwarden, age, gitleaks pre-commit
 - [ ] **Phase 5:** AI agents (`AGENTS.md`, Claude Code, Cursor)
 - [ ] **Phase 6:** dev containers + Codespaces (`install.sh`)
 - [ ] **Phase 7:** CI + final docs
