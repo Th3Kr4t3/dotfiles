@@ -6,6 +6,7 @@
 .config/shell
 .config/mise
 .local/bin
+.claude/settings.json
 projects
 .chezmoiscripts/linux/**
 {{- end }}

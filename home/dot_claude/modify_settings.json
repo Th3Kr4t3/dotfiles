@@ -1,0 +1,65 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Claude Code writes to this file too (e.g. /config), so only permissions.deny and
+       permissions.ask are enforced; every other key is kept as it is.
+       These are guardrails for the usual command forms, not a security boundary:
+       `sh -c "sudo ..."` or a full program path won't match a Bash rule. */ -}}
+{{- $s := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $s = fromJson .chezmoi.stdin -}}
+{{- end -}}
+
+{{- $deny := list
+      "Bash(sudo *)"
+      "Bash(chsh *)"
+      "Bash(npm install -g *)"
+      "Bash(npm install --global *)"
+      "Bash(npm i -g *)"
+      "Bash(pnpm add -g *)"
+      "Bash(pnpm add --global *)"
+      "Bash(yarn global *)"
+      "Bash(uv tool install *)"
+      "Bash(pipx install *)"
+      "Bash(cargo install *)"
+      "Bash(go install *)"
+      "Bash(mise use -g *)"
+      "Bash(mise use --global *)"
+      "Bash(git config --global *)"
+      "Bash(docker system prune *)"
+      "Bash(docker volume prune *)"
+      "Bash(powershell.exe *)"
+      "Bash(cmd.exe *)"
+      "Bash(winget.exe *)"
+      "Bash(reg.exe *)"
+      "Edit(~/.zshrc)"
+      "Edit(~/.bashrc)"
+      "Edit(~/.profile)"
+      "Edit(~/.gitconfig)"
+      "Edit(~/.config/**)"
+      "Edit(~/.local/bin/**)"
+      "Edit(~/projects/AGENTS.md)"
+      "Edit(~/projects/CLAUDE.md)"
+      "Edit(//etc/**)"
+      "Edit(//mnt/c/**)"
+      "Read(~/.ssh/id_*)"
+      "Read(~/.config/gh/hosts.yml)"
+      "Read(~/.config/Bitwarden CLI/**)"
+      "Read(~/.claude/.credentials.json)"
+      "Read(.env)"
+      "Read(.env.local)"
+-}}
+
+{{- $ask := list
+      "Bash(pip install *)"
+      "Bash(pip3 install *)"
+      "Bash(python -m pip install *)"
+      "Bash(python3 -m pip install *)"
+      "Bash(git push --force *)"
+      "Bash(git push -f *)"
+      "Bash(git reset --hard *)"
+      "Bash(rm -rf *)"
+      "Bash(chezmoi apply *)"
+-}}
+
+{{- $s = setValueAtPath "permissions.deny" $deny $s -}}
+{{- $s = setValueAtPath "permissions.ask" $ask $s -}}
+{{ toPrettyJson $s }}

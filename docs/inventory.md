@@ -22,8 +22,8 @@ A scan for secret-looking values in the current shell and git config found nothi
 | `~/projects/{sandbox,courses,clients,prod}` | Layout changed on 2026-10-22 (it was personal/web/mobile/sandbox); crawlr moved to `sandbox/` | 📜 Script creates the folders. ✅ `~/projects/CLAUDE.md` holds the layout and isolation rules | 2 |
 | `/etc/wsl.conf` | `systemd=true`, `default=user` (distro defaults) | 📜 Check only; it's outside `$HOME` and needs sudo | 2 |
 | `~/.ssh/` | **Doesn't exist**: no SSH keys yet | 🔒 Generate one key per machine, template `~/.ssh/config`, upload the public key to GitHub. The private key never goes in the repo | 4 |
-| `~/.claude/settings.json` | `{"theme": "dark"}` | ✅ Manage | 5 |
-| `~/.claude/CLAUDE.md` | Doesn't exist | ✅ New: a one-line `@AGENTS.md` bridge | 5 |
+| `~/.claude/settings.json` | `{"theme": "dark"}` | ✅ Modify template: enforces `permissions.deny` and `permissions.ask` and keeps every other key | 5 |
+| `~/.claude/CLAUDE.md` | Doesn't exist | ✅ New: global personal instructions (language, English coaching, machine changes), on WSL and Windows. The `@AGENTS.md` bridge lives in `~/projects/CLAUDE.md` | 5 |
 | `~/.claude/.credentials.json`, `history.jsonl`, `projects/`, `sessions/`, `session-env/`, `shell-snapshots/`, `cache/`, `backups/`, `downloads/`, `plugins/` | Claude Code state | ⛔ Never manage (credentials and history) | – |
 | `~/.claude.json` | Claude Code app state | ⛔ Exclude | – |
 | `~/.bash_history`, `~/.lesshst`, `~/.cache/`, `~/.landscape/`, `~/.motd_shown`, `~/.config/ubuntu-insights/` | Runtime state | ⛔ Exclude | – |

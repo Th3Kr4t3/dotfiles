@@ -36,6 +36,14 @@ test -f ~/projects/CLAUDE.md
 for d in sandbox courses clients prod; do test -d ~/projects/"$d"; done
 echo "projects: ok"
 
+step "Agent instructions and Claude Code guardrails"
+grep -qx '@AGENTS.md' ~/projects/CLAUDE.md
+test -f ~/projects/AGENTS.md
+test -f ~/.claude/CLAUDE.md
+jq -e '.permissions.deny | index("Bash(sudo *)")' ~/.claude/settings.json >/dev/null
+jq -e '.permissions.ask | index("Bash(chezmoi apply *)")' ~/.claude/settings.json >/dev/null
+echo "agents: ok"
+
 step "SSH config is private"
 [ "$(stat -c %a ~/.ssh)" = 700 ] && [ "$(stat -c %a ~/.ssh/config)" = 600 ]
 echo "ssh: ok"

@@ -2,7 +2,7 @@
 
 My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
 
-> **Status:** Phases 0–4 done.
+> **Status:** Phases 0–5 done.
 > **WSL:** shell (zsh + bash fallback), git, SSH config, mise tools (including gh and gitleaks), and apt packages.
 > **Windows:** `.wslconfig`, Windows Terminal, Cursor, dev apps (winget), the Start Menu shortcut, and the Quick Access pin.
 > The Linux bootstrap is tested on a clean Ubuntu 26.04 container.
@@ -65,6 +65,20 @@ To add one:
 
 Never `chezmoi add` a file that contains a secret as is. Add it with `--template` and replace the value with the Bitwarden call. Bitwarden's own state (`~/.config/Bitwarden CLI/`) is never managed.
 
+## AI agents
+
+| File | Read by | Purpose |
+|---|---|---|
+| `~/projects/AGENTS.md` | Claude Code (through `~/projects/CLAUDE.md`, whose only line is `@AGENTS.md`), Cursor (through its User Rules), and other agents | Shared workspace rules: isolation, layout, ports, promotion checklist |
+| `~/.claude/CLAUDE.md` | Claude Code, in WSL and on Windows | Personal instructions: language, English coaching, machine changes |
+| `~/.claude/settings.json` (WSL) | Claude Code | `deny` and `ask` rules that enforce the most critical rules. It's a modify template, so settings Claude Code writes itself are kept |
+
+**Cursor** reads the `AGENTS.md` at the root of the project you open, not the one in `~/projects`. Its global User Rules live in its own settings, not in a file, so they can't be managed here. Do this once per machine: in Cursor, go to Settings → Rules → User Rules and add:
+
+> Before changing anything, read and follow the shared workspace rules in `~/projects/AGENTS.md` (in WSL).
+
+**Guardrails, not a security boundary.** Deny rules match the usual command forms; `sh -c "sudo ..."` or a full program path won't match. For hard enforcement, Claude Code's sandbox restricts writes to the project folder at the OS level.
+
 ## Goal
 
 Any of my environments (this PC, a new PC, a dev container, or Codespaces) is ready to work with **one command**: reproducible, secure, and version-controlled.
@@ -112,7 +126,9 @@ To change a decision, edit its row in the same commit as the change, and explain
     ├── dot_gitconfig.tmpl
     ├── dot_config/shell/      # aliases + tool init shared by zsh and bash
     ├── dot_config/mise/       # global tool versions
-    ├── projects/CLAUDE.md     # layout + isolation rules for every project in ~/projects
+    ├── projects/AGENTS.md     # layout + isolation rules for every agent in ~/projects
+    ├── projects/CLAUDE.md     # one line: @AGENTS.md
+    ├── dot_claude/            # Claude Code: global instructions + deny/ask rules
     ├── dot_wslconfig          # Windows: WSL resource limits
     ├── AppData/               # Windows: Terminal (modify template) + Cursor settings
     └── .chezmoiscripts/
@@ -127,6 +143,6 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 2:** MVP on WSL (zsh, git, mise, apt), tested on a clean container
 - [x] **Phase 3:** Windows side (`.wslconfig`, Terminal, Cursor, winget apps, shortcut, Quick Access)
 - [x] **Phase 4:** secrets + SSH (SSH config, gh, gitleaks scans, Bitwarden CLI wired into chezmoi). Dropped: the gitleaks pre-commit hook. Deferred: age, until there's a file to encrypt
-- [ ] **Phase 5:** AI agents (`AGENTS.md`, Claude Code, Cursor)
+- [x] **Phase 5:** AI agents (shared `AGENTS.md`, global Claude instructions, deny/ask rules, Cursor User Rules bridge)
 - [ ] **Phase 6:** dev containers + Codespaces (`install.sh`)
 - [ ] **Phase 7:** CI + final docs
