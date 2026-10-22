@@ -5,6 +5,7 @@
 .ssh
 .config/shell
 .config/mise
+.local/bin/open-in-windows
 projects
 .chezmoiscripts/linux/**
 {{- end }}

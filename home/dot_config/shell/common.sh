@@ -30,5 +30,8 @@ alias p='cd ~/projects'
 alias gs='git status -sb'
 alias gl='git log --oneline --graph -20'
 alias c='cursor .'
-command -v explorer.exe >/dev/null 2>&1 && alias e='explorer.exe .'   # WSL only: open folder in Explorer
+if command -v explorer.exe >/dev/null 2>&1; then   # WSL only
+  alias e='explorer.exe .'                          # open the current folder in Explorer
+  export BROWSER="$HOME/.local/bin/open-in-windows" # CLIs open links in the Windows browser
+fi
 alias dots='chezmoi cd'

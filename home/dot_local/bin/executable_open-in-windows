@@ -1,0 +1,9 @@
+#!/bin/sh
+# Opens a URL or a file with Windows' default app. Exported as $BROWSER in WSL,
+# so gh, Python's webbrowser, npm, and others can open links from the terminal.
+[ -n "$1" ] || { echo "usage: open-in-windows <url|path>" >&2; exit 2; }
+
+target="$1"
+[ -e "$target" ] && target="$(wslpath -w "$target")"
+explorer.exe "$target" >/dev/null 2>&1
+exit 0  # explorer.exe exits with 1 even when it succeeds
