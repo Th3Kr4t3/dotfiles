@@ -19,7 +19,7 @@ A scan for secret-looking values in the current shell and git config found nothi
 | apt packages | 35 marked manual; ours: bat, build-essential, ca-certificates, curl, fd-find, fzf, git, htop, jq, ripgrep, tree, unzip, wget, zip, zoxide | 📜 `run_onchange_` script with the package list, adding zsh, zsh-autosuggestions, and zsh-syntax-highlighting | 2 |
 | `~/.local/bin/mise` | Installed by mise.run | 📜 `run_once_` install script | 2 |
 | `~/.local/bin/claude` | Installed by the Claude Code installer | 📜 `run_once_` install script | 5 |
-| `~/projects/{sandbox,courses,clients,prod}` | Layout changed on 2026-10-22 (it was personal/web/mobile/sandbox); crawlr is at `~/projects/crawlr` | 📜 Script creates the folders. ✅ `~/projects/CLAUDE.md` holds the layout and isolation rules. Where crawlr goes is an open question (see below) | 2 |
+| `~/projects/{sandbox,courses,clients,prod}` | Layout changed on 2026-10-22 (it was personal/web/mobile/sandbox); crawlr moved to `sandbox/` | 📜 Script creates the folders. ✅ `~/projects/CLAUDE.md` holds the layout and isolation rules | 2 |
 | `/etc/wsl.conf` | `systemd=true`, `default=user` (distro defaults) | 📜 Check only; it's outside `$HOME` and needs sudo | 2 |
 | `~/.ssh/` | **Doesn't exist**: no SSH keys yet | 🔒 Generate one key per machine, template `~/.ssh/config`, upload the public key to GitHub. The private key never goes in the repo | 4 |
 | `~/.claude/settings.json` | `{"theme": "dark"}` | ✅ Manage | 5 |
@@ -61,6 +61,6 @@ A scan for secret-looking values in the current shell and git config found nothi
 
 ## Open questions
 
-1. **crawlr location:** which folder does it belong in: `prod/`, `sandbox/`, or somewhere else?
+1. ~~**crawlr location**~~: resolved. It moved to `~/projects/sandbox/crawlr` (still experimental), along with its Claude Code state folder.
 2. **OpenCode:** do you still use it? If yes, its config joins the shared AI rules in Phase 5. If not, it gets removed from the app list.
 3. **Python on Windows:** keep it or uninstall it?
