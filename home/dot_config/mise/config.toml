@@ -3,3 +3,5 @@
 node = "lts"
 starship = "latest"
 uv = "latest"
+gh = "latest"
+gitleaks = "latest"

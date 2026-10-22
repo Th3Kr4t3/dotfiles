@@ -5,6 +5,17 @@ case ":$PATH:" in
   *) export PATH="$HOME/.local/bin:$PATH" ;;
 esac
 
+# One ssh-agent shared by every shell. The key is added on first use (AddKeysToAgent),
+# so the passphrase is asked once per WSL boot. Forwarded agents (Codespaces) are left alone.
+if [ -z "$SSH_AUTH_SOCK" ] && [ -d "$HOME/.ssh" ] && command -v ssh-agent >/dev/null 2>&1; then
+  export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+  ssh-add -l >/dev/null 2>&1
+  if [ $? -eq 2 ]; then   # 2 = no agent listening on the socket
+    rm -f "$SSH_AUTH_SOCK"
+    ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null
+  fi
+fi
+
 if [ -n "$ZSH_VERSION" ]; then _sh=zsh; else _sh=bash; fi
 command -v mise     >/dev/null 2>&1 && eval "$(mise activate $_sh)"   # per-folder tool versions
 command -v starship >/dev/null 2>&1 && eval "$(starship init $_sh)"   # prompt with git branch

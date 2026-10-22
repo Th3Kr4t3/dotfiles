@@ -1,0 +1,8 @@
+# ~/.ssh/config (managed by chezmoi). Private keys never live in the dotfiles repo:
+# each machine generates its own key and registers it with `gh auth login`.
+
+Host github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  AddKeysToAgent yes

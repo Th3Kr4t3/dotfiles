@@ -2,6 +2,7 @@
 .bashrc
 .zshrc
 .gitconfig
+.ssh
 .config/shell
 .config/mise
 projects
