@@ -1,13 +1,18 @@
 # dotfiles
 
-My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
+[![CI](https://github.com/Th3Kr4t3/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/Th3Kr4t3/dotfiles/actions/workflows/ci.yml)
 
-> **Status:** Phases 0–6 done.
-> **WSL:** shell (zsh + bash fallback), git, SSH config, mise tools (including gh and gitleaks), and apt packages.
-> **Windows:** `.wslconfig`, Windows Terminal, Cursor, dev apps (winget), the Start Menu shortcut, and the Quick Access pin.
-> The Linux bootstrap is tested on a clean Ubuntu 26.04 container.
+My development environment as code: **Windows 11 + WSL2 (Ubuntu 26.04)**, plus Codespaces and dev containers, managed with [chezmoi](https://www.chezmoi.io).
 
-## Usage
+One repo, three profiles:
+
+| Profile | Where | What it sets up |
+|---|---|---|
+| **Machine** | WSL / Linux | zsh (bash as fallback) with shared aliases, git, SSH config, mise tools (node, uv, starship, gh, gitleaks, Bitwarden CLI), apt packages, `~/projects` with its agent rules, Claude Code guardrails |
+| **Windows** | The Windows host | `.wslconfig`, Windows Terminal, Cursor settings and extensions, dev apps via winget, a Start Menu shortcut (Ctrl+Alt+T), a Quick Access pin |
+| **Container** | Codespaces, dev containers | The shell experience only: zsh/bash config, starship, fzf, zoxide, ripgrep, git, Claude settings. Applies in about 20 seconds |
+
+## Quick start
 
 **New Windows PC**, in three steps:
 
@@ -25,10 +30,14 @@ My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with
    chezmoi init --apply --source \\wsl.localhost\Ubuntu-26.04\home\user\.local\share\chezmoi
    ```
 
+Then, once per machine, add the Cursor User Rule described in [AI agents](#ai-agents).
+
 **Plain Linux (a VM or server):** step 2 alone.
 **Codespaces and dev containers:** see [Containers](#containers).
 
-**Day to day:**
+## Day to day
+
+Edit and commit in WSL. Windows reads the same clone, so it only needs `chezmoi apply`.
 
 | Task | Command |
 |---|---|
@@ -37,21 +46,16 @@ My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with
 | Start managing a new file | `chezmoi add ~/.config/foo` |
 | Pull from GitHub and apply | `chezmoi update` |
 | Go to this repo | `dots` (alias for `chezmoi cd`) |
-| Add an apt package | Edit `home/.chezmoiscripts/linux/run_onchange_before_10-apt-packages.sh`; it re-runs on the next apply |
+| Add an apt package | Edit `home/.chezmoiscripts/linux/run_onchange_before_10-apt-packages.sh` (containers: `…-apt-packages-container.sh.tmpl`). It re-runs on the next apply |
+| Add a global tool | Edit `home/dot_config/mise/config.toml` |
 | Add a Windows app | Edit `home/.chezmoiscripts/windows/run_onchange_before_10-winget-apps.ps1` |
-| Apply changes on Windows | `chezmoi apply` in PowerShell (it reads the repo in WSL) |
+| Apply changes on Windows | `chezmoi apply` in PowerShell |
 | Keep a setting you changed in Cursor's UI | `chezmoi re-add` in PowerShell, then commit in WSL |
 | Check for secrets before pushing | `gitleaks git .` from the repo root |
 
-**Test the machine profile on a clean Ubuntu** (from the repo root):
-
-```sh
-docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
-```
-
 ## Containers
 
-Codespaces and dev containers clone this repo and run [`install.sh`](install.sh). It applies a light **container profile** in about 20 seconds:
+Codespaces and dev containers clone this repo and run [`install.sh`](install.sh), which applies the light **container profile**:
 
 | Gets | Skips, and why |
 |---|---|
@@ -62,7 +66,6 @@ Codespaces and dev containers clone this repo and run [`install.sh`](install.sh)
 - **Codespaces**, once per account: GitHub → Settings → Codespaces → Dotfiles → *Automatically install dotfiles* → `Th3Kr4t3/dotfiles`. It applies to new codespaces only.
 - **Cursor dev containers:** the managed Cursor settings set `dotfiles.repository`, and the `anysphere.remote-containers` extension clones the repo and runs `install.sh`. Cursor doesn't document this officially. If a container opens without your shell, run `git clone https://github.com/Th3Kr4t3/dotfiles ~/dotfiles && sh ~/dotfiles/install.sh` inside it.
 - `DOTFILES_PROFILE=machine` or `container` overrides the detection. `install.sh` sets `container`.
-- Test it locally, simulating a Codespaces user: `docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/container-test.sh`
 
 ## Secrets
 
@@ -95,19 +98,38 @@ Never `chezmoi add` a file that contains a secret as is. Add it with `--template
 
 **Guardrails, not a security boundary.** Deny rules match the usual command forms; `sh -c "sudo ..."` or a full program path won't match. For hard enforcement, Claude Code's sandbox restricts writes to the project folder at the OS level.
 
+## Testing and CI
+
+Every push and pull request runs [CI](.github/workflows/ci.yml):
+
+| Job | What it proves |
+|---|---|
+| gitleaks (full history) | No secret in any commit |
+| machine profile on a clean Ubuntu | The WSL bootstrap installs everything, both shells load the tools, and a second apply changes nothing |
+| container profile on a clean Ubuntu | A Codespaces-like user (non-root, with sudo) runs `install.sh` from a clone and gets the light profile, idempotently |
+
+Run the same tests locally from the repo root:
+
+```sh
+docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
+docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/container-test.sh
+```
+
+The Windows profile isn't covered by CI. It was verified by hand on the real machine (preview, apply, and a second apply with no changes).
+
 ## Goal
 
 Any of my environments (this PC, a new PC, a dev container, or Codespaces) is ready to work with **one command**: reproducible, secure, and version-controlled.
 
-### Success criteria
-
-1. A fresh Windows install is ready in **under 30 minutes**, with one command per OS.
-2. Running `chezmoi apply` twice in a row changes nothing the second time (idempotent).
-3. **Zero secrets** in the repo. Secrets come from Bitwarden at apply time, and gitleaks scans the history before every push (and in CI, Phase 7).
-4. The same shell experience in WSL, dev containers, and Codespaces.
-5. AI agent rules are versioned and shared between Claude Code and Cursor.
-6. CI tests the bootstrap on a clean Ubuntu on every push.
-7. This README explains the structure and how to update it.
+| # | Success criterion | Status |
+|---|---|---|
+| 1 | A fresh Windows install is ready in under 30 minutes, with one command per OS | ⚠️ The Linux side takes about 2 minutes from GitHub on a clean Ubuntu. The Windows side hasn't been timed on a fresh install yet |
+| 2 | Running `chezmoi apply` twice in a row changes nothing the second time | ✅ Checked by both CI tests and on the real machine |
+| 3 | Zero secrets in the repo | ✅ Secrets come from Bitwarden at apply time, and gitleaks scans the full history in CI |
+| 4 | The same shell experience in WSL, dev containers, and Codespaces | ✅ One shared `common.sh`. The container profile is tested in CI; a real codespace is still to be tried |
+| 5 | AI agent rules are versioned and shared between Claude Code and Cursor | ✅ `AGENTS.md` + `@AGENTS.md` bridge + a Cursor User Rule |
+| 6 | CI tests the bootstrap on a clean Ubuntu on every push | ✅ |
+| 7 | This README explains the structure and how to update it | ✅ |
 
 **Out of scope:** per-project environments (they live in each project's repo), macOS, servers.
 
@@ -117,13 +139,14 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 |---|---|---|---|
 | 1 | Dotfiles manager | chezmoi | The only tool that covers Windows + WSL + containers with templates, secrets, and `run_onchange_` scripts in a single binary. |
 | 2 | Repo visibility | Public | Portfolio value. Safe because personal data comes from templates and secrets from Bitwarden. |
-| 3 | Secrets | Bitwarden (`bw` CLI). age only if a whole file ever needs encrypting | Already in use, and free. Nothing secret is ever committed in plain text. No gitleaks pre-commit hook: a manual scan before each push, plus CI, is enough for now. |
+| 3 | Secrets | Bitwarden (`bw` CLI). age only if a whole file ever needs encrypting | Already in use, and free. Nothing secret is ever committed in plain text. No gitleaks pre-commit hook: a manual scan before each push, plus CI, is enough. |
 | 4 | Shell (WSL) | zsh, with no framework (no oh-my-zsh) | Better completion. Plugins come from apt. Aliases live in one shared file that bash can also source, so containers without zsh still work. |
 | 5 | Windows apps | Dev tools only, installed by a `winget install` script | Games and hardware utilities are personal, not part of the environment. `winget configure` was dropped because it needs an admin-only enable step and PowerShell DSC modules on every new PC. |
-| 6 | Repo layout | `.chezmoiroot` → `home/` | Keeps the README, docs, and CI out of `$HOME`. |
+| 6 | Repo layout | `.chezmoiroot` → `home/` | Keeps the README, docs, tests, and CI out of `$HOME`. |
 | 7 | Source location | One clone, in WSL at the chezmoi default (`~/.local/share/chezmoi`). chezmoi on Windows reads it through `\\wsl.localhost` | One repo to edit and commit, and no second clone to keep in sync. `chezmoi re-add` on Windows writes straight into it. |
 | 8 | Decision log | This table + commit messages | No ADRs for a personal repo. Any change can be undone with `git revert`. |
 | 9 | Containers | A light profile through `install.sh`: no mise, no `~/.ssh` | The project's image owns the toolchain, and Codespaces brings its own SSH agent. Containers only need the shell experience. |
+| 10 | CI | GitHub Actions running the same Docker tests as local, with actions pinned by commit SHA | One test suite for laptop and CI. Pinning by SHA protects a public repo from a hijacked action tag. |
 
 To change a decision, edit its row in the same commit as the change, and explain why in the commit message.
 
@@ -132,6 +155,7 @@ To change a decision, edit its row in the same commit as the change, and explain
 ```
 .
 ├── README.md
+├── .github/workflows/ci.yml   # gitleaks + both profile tests on every push
 ├── docs/inventory.md          # what is managed, where, and how
 ├── install.sh                 # entry point for Codespaces and dev containers
 ├── tests/bootstrap-test.sh    # machine profile on a clean Ubuntu
@@ -139,19 +163,21 @@ To change a decision, edit its row in the same commit as the change, and explain
 ├── .chezmoiroot               # contains "home"
 └── home/                      # everything chezmoi applies
     ├── .chezmoi.toml.tmpl     # per-machine data: name, email, isWSL, isContainer
-    ├── .chezmoiignore         # which files go to Windows vs Linux
+    ├── .chezmoiignore         # which files go to Windows, Linux, and containers
     ├── dot_zshrc              # default shell
     ├── dot_bashrc             # fallback shell
     ├── dot_gitconfig.tmpl
     ├── dot_config/shell/      # aliases + tool init shared by zsh and bash
     ├── dot_config/mise/       # global tool versions
+    ├── dot_local/bin/         # open-in-windows ($BROWSER in WSL)
+    ├── private_dot_ssh/       # SSH config for GitHub (keys are never stored)
     ├── projects/AGENTS.md     # layout + isolation rules for every agent in ~/projects
     ├── projects/CLAUDE.md     # one line: @AGENTS.md
     ├── dot_claude/            # Claude Code: global instructions + deny/ask rules
     ├── dot_wslconfig          # Windows: WSL resource limits
     ├── AppData/               # Windows: Terminal (modify template) + Cursor settings
     └── .chezmoiscripts/
-        ├── linux/             # apt packages, mise, ~/projects folders, default shell
+        ├── linux/             # apt packages, mise, ~/projects folders, default shell, container extras
         └── windows/           # winget apps, Cursor extensions, Start Menu shortcut, Quick Access pin
 ```
 
@@ -164,4 +190,6 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 4:** secrets + SSH (SSH config, gh, gitleaks scans, Bitwarden CLI wired into chezmoi). Dropped: the gitleaks pre-commit hook. Deferred: age, until there's a file to encrypt
 - [x] **Phase 5:** AI agents (shared `AGENTS.md`, global Claude instructions, deny/ask rules, Cursor User Rules bridge)
 - [x] **Phase 6:** dev containers + Codespaces (`install.sh`, light container profile, Cursor dev containers)
-- [ ] **Phase 7:** CI + final docs
+- [x] **Phase 7:** CI (gitleaks + both profile tests) and this final README
+
+**Ideas for later:** enable Claude Code's sandbox in WSL so the isolation rule is enforced by the OS; render the Windows templates in CI on a Windows runner; time a full bootstrap on a fresh Windows install.
