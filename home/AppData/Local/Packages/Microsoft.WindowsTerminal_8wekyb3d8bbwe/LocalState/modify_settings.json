@@ -1,0 +1,19 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Windows Terminal rewrites this file itself, so only these keys are enforced:
+       Ubuntu as the default profile, starting in ~, and new windows reuse the open one. */ -}}
+{{- $distro := "Ubuntu-26.04" -}}
+{{- $s := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $s = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- $_ := set $s "windowingBehavior" "useExisting" -}}
+{{- $profiles := list -}}
+{{- range $p := (dig "profiles" "list" (list) $s) -}}
+{{-   if eq (get $p "name") $distro -}}
+{{-     $_ := set $s "defaultProfile" (get $p "guid") -}}
+{{-     $_ := set $p "startingDirectory" "~" -}}
+{{-   end -}}
+{{-   $profiles = append $profiles $p -}}
+{{- end -}}
+{{- $s = setValueAtPath "profiles.list" $profiles $s -}}
+{{ toPrettyJson $s }}

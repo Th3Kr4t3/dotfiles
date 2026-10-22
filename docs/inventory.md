@@ -54,7 +54,7 @@ A scan for secret-looking values in the current shell and git config found nothi
 
 | Plan | Packages |
 |---|---|
-| ✅ Dev set → `winget configure` file | Microsoft.WindowsTerminal, Microsoft.WSL, Anysphere.Cursor, Docker.DockerDesktop, Bitwarden.Bitwarden, Anthropic.Claude, **twpayne.chezmoi** (new) |
+| ✅ Dev set → `winget install` script | Microsoft.WindowsTerminal, Microsoft.WSL, Anysphere.Cursor, Docker.DockerDesktop, Bitwarden.Bitwarden, Anthropic.Claude, **twpayne.chezmoi** (new) |
 | ❓ Review | SST.OpenCodeDesktop, Python.Python.3.12 + Python.Launcher (Python on Windows is likely unnecessary, since dev work happens in WSL) |
 | ⛔ Personal | EpicGames.*, RockstarGames.Launcher, ElectronicArts.EADesktop, CPUID.*, Guru3D.RTSS, Nvidia.PhysX, Logitech.OptionsPlus, WhirlwindFX.SignalRgb, RARLab.WinRAR, Malwarebytes.Malwarebytes, Microsoft.OneDrive, Microsoft.Edge, Microsoft.365Copilot |
 | ⛔ Runtimes (installed automatically as dependencies) | Microsoft.VCRedist.*, Microsoft.VCLibs.*, Microsoft.UI.Xaml.*, Microsoft.WindowsAppRuntime.*, Microsoft.DotNet.Native.Runtime, Microsoft.GameInput, Microsoft.AppInstaller |

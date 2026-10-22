@@ -5,11 +5,13 @@
 .ssh
 .config/shell
 .config/mise
-.local/bin/open-in-windows
+.local/bin
 projects
 .chezmoiscripts/linux/**
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
+.wslconfig
+AppData
 .chezmoiscripts/windows/**
 {{- end }}

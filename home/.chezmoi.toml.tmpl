@@ -13,8 +13,16 @@
 {{-   if .chezmoi.kernel.osrelease | lower | contains "microsoft" -}}
 {{-     $isWSL = true -}}
 {{-   end -}}
-{{- end -}}
+{{- end }}
+{{ if eq .chezmoi.os "windows" -}}
+# Windows reads the canonical clone in WSL, so there is one repo to edit and commit.
+sourceDir = {{ .chezmoi.workingTree | quote }}
 
+# The PowerShell execution policy is Restricted by default; scripts run with Bypass.
+[interpreters.ps1]
+  command = "powershell"
+  args = ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
+{{ end }}
 [data]
   name = {{ $name | quote }}
   email = {{ $email | quote }}

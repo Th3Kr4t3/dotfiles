@@ -1,0 +1,2 @@
+# Runs whenever .wslconfig changes: {{ include "dot_wslconfig" | sha256sum }}
+Write-Host ".wslconfig changed. Run 'wsl --shutdown' to apply it (this closes every WSL terminal)." -ForegroundColor Yellow
