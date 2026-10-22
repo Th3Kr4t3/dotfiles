@@ -16,3 +16,16 @@ projects
 AppData
 .chezmoiscripts/windows/**
 {{- end }}
+
+{{- /* Containers get the shell, git, and Claude settings only. The project's image provides
+       the toolchain, and Codespaces forwards its own SSH agent. */}}
+{{- if .isContainer }}
+.ssh
+.config/mise
+.local/bin/open-in-windows
+projects
+.chezmoiscripts/linux/10-apt-packages.sh
+.chezmoiscripts/linux/20-install-mise.sh
+.chezmoiscripts/linux/30-mise-install.sh
+.chezmoiscripts/linux/40-projects-dirs.sh
+{{- end }}

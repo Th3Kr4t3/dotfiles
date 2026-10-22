@@ -1,3 +1,6 @@
 {
-    "window.autoDetectColorScheme": true
+    "window.autoDetectColorScheme": true,
+    "dotfiles.repository": "Th3Kr4t3/dotfiles",
+    "dotfiles.targetPath": "~/dotfiles",
+    "dotfiles.installCommand": "install.sh"
 }

@@ -14,6 +14,16 @@
 {{-     $isWSL = true -}}
 {{-   end -}}
 {{- end }}
+{{- /* DOTFILES_PROFILE overrides detection: install.sh sets "container", the machine test sets "machine". */ -}}
+{{- if eq (env "DOTFILES_PROFILE") "machine" -}}
+{{-   $isContainer = false -}}
+{{- else if eq (env "DOTFILES_PROFILE") "container" -}}
+{{-   $isContainer = true -}}
+{{- end }}
+{{ if $isContainer -}}
+# Containers apply from wherever install.sh was cloned (e.g. Codespaces), so remember it.
+sourceDir = {{ .chezmoi.workingTree | quote }}
+{{ end -}}
 {{ if eq .chezmoi.os "windows" -}}
 # Windows reads the canonical clone in WSL, so there is one repo to edit and commit.
 sourceDir = {{ .chezmoi.workingTree | quote }}

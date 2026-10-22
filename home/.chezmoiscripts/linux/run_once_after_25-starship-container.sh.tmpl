@@ -1,0 +1,10 @@
+{{- if .isContainer -}}
+#!/usr/bin/env bash
+# Containers skip mise, so the prompt comes straight from starship's installer.
+set -euo pipefail
+
+command -v starship >/dev/null 2>&1 && exit 0
+command -v curl >/dev/null 2>&1 || { echo "curl not found; skipping starship"; exit 0; }
+mkdir -p "$HOME/.local/bin"
+curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
+{{- end }}

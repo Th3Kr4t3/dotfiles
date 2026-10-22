@@ -6,6 +6,7 @@ set -euo pipefail
 zsh_path="$(command -v zsh)"
 user="$(id -un)"
 if [ "$(getent passwd "$user" | cut -d: -f7)" != "$zsh_path" ]; then
-  sudo chsh -s "$zsh_path" "$user"
+  SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+  $SUDO chsh -s "$zsh_path" "$user"
 fi
 {{- end }}

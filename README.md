@@ -2,7 +2,7 @@
 
 My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
 
-> **Status:** Phases 0–5 done.
+> **Status:** Phases 0–6 done.
 > **WSL:** shell (zsh + bash fallback), git, SSH config, mise tools (including gh and gitleaks), and apt packages.
 > **Windows:** `.wslconfig`, Windows Terminal, Cursor, dev apps (winget), the Start Menu shortcut, and the Quick Access pin.
 > The Linux bootstrap is tested on a clean Ubuntu 26.04 container.
@@ -25,7 +25,8 @@ My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with
    chezmoi init --apply --source \\wsl.localhost\Ubuntu-26.04\home\user\.local\share\chezmoi
    ```
 
-**Containers or plain Linux:** step 2 alone.
+**Plain Linux (a VM or server):** step 2 alone.
+**Codespaces and dev containers:** see [Containers](#containers).
 
 **Day to day:**
 
@@ -42,11 +43,26 @@ My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with
 | Keep a setting you changed in Cursor's UI | `chezmoi re-add` in PowerShell, then commit in WSL |
 | Check for secrets before pushing | `gitleaks git .` from the repo root |
 
-**Test on a clean Ubuntu** (from the repo root):
+**Test the machine profile on a clean Ubuntu** (from the repo root):
 
 ```sh
 docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
 ```
+
+## Containers
+
+Codespaces and dev containers clone this repo and run [`install.sh`](install.sh). It applies a light **container profile** in about 20 seconds:
+
+| Gets | Skips, and why |
+|---|---|
+| zsh/bash config and aliases, starship, fzf, zoxide, ripgrep | mise and its global tools: the project's image defines node, python, and so on, and global versions would shadow them |
+| `.gitconfig` (noreply email) | `~/.ssh`: Codespaces forwards its own SSH agent, and our `IdentitiesOnly` config would block it |
+| Claude Code instructions and deny/ask rules | `~/projects`, `.wslconfig`, and the Windows files |
+
+- **Codespaces**, once per account: GitHub → Settings → Codespaces → Dotfiles → *Automatically install dotfiles* → `Th3Kr4t3/dotfiles`. It applies to new codespaces only.
+- **Cursor dev containers:** the managed Cursor settings set `dotfiles.repository`, and the `anysphere.remote-containers` extension clones the repo and runs `install.sh`. Cursor doesn't document this officially. If a container opens without your shell, run `git clone https://github.com/Th3Kr4t3/dotfiles ~/dotfiles && sh ~/dotfiles/install.sh` inside it.
+- `DOTFILES_PROFILE=machine` or `container` overrides the detection. `install.sh` sets `container`.
+- Test it locally, simulating a Codespaces user: `docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/container-test.sh`
 
 ## Secrets
 
@@ -107,6 +123,7 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 | 6 | Repo layout | `.chezmoiroot` → `home/` | Keeps the README, docs, and CI out of `$HOME`. |
 | 7 | Source location | One clone, in WSL at the chezmoi default (`~/.local/share/chezmoi`). chezmoi on Windows reads it through `\\wsl.localhost` | One repo to edit and commit, and no second clone to keep in sync. `chezmoi re-add` on Windows writes straight into it. |
 | 8 | Decision log | This table + commit messages | No ADRs for a personal repo. Any change can be undone with `git revert`. |
+| 9 | Containers | A light profile through `install.sh`: no mise, no `~/.ssh` | The project's image owns the toolchain, and Codespaces brings its own SSH agent. Containers only need the shell experience. |
 
 To change a decision, edit its row in the same commit as the change, and explain why in the commit message.
 
@@ -116,7 +133,9 @@ To change a decision, edit its row in the same commit as the change, and explain
 .
 ├── README.md
 ├── docs/inventory.md          # what is managed, where, and how
-├── tests/bootstrap-test.sh    # clean-Ubuntu bootstrap check
+├── install.sh                 # entry point for Codespaces and dev containers
+├── tests/bootstrap-test.sh    # machine profile on a clean Ubuntu
+├── tests/container-test.sh    # container profile, run like Codespaces does
 ├── .chezmoiroot               # contains "home"
 └── home/                      # everything chezmoi applies
     ├── .chezmoi.toml.tmpl     # per-machine data: name, email, isWSL, isContainer
@@ -144,5 +163,5 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 3:** Windows side (`.wslconfig`, Terminal, Cursor, winget apps, shortcut, Quick Access)
 - [x] **Phase 4:** secrets + SSH (SSH config, gh, gitleaks scans, Bitwarden CLI wired into chezmoi). Dropped: the gitleaks pre-commit hook. Deferred: age, until there's a file to encrypt
 - [x] **Phase 5:** AI agents (shared `AGENTS.md`, global Claude instructions, deny/ask rules, Cursor User Rules bridge)
-- [ ] **Phase 6:** dev containers + Codespaces (`install.sh`)
+- [x] **Phase 6:** dev containers + Codespaces (`install.sh`, light container profile, Cursor dev containers)
 - [ ] **Phase 7:** CI + final docs

@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Bootstraps the dotfiles on a clean Ubuntu and checks the result.
+# Bootstraps the full machine profile (what WSL gets) on a clean Ubuntu and checks the result.
 # Run from the repo root:
 #   docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
 set -euo pipefail
+
+# Docker would be detected as a container; this test is about the machine profile.
+export DOTFILES_PROFILE=machine
 
 step() { printf '\n\033[1;36m== %s\033[0m\n' "$1"; }
 

@@ -2,6 +2,7 @@
 $extensions = @(
     'anysphere.remote-ssh'
     'anysphere.remote-wsl'
+    'anysphere.remote-containers'
 )
 
 if (-not (Get-Command cursor -ErrorAction SilentlyContinue)) {
