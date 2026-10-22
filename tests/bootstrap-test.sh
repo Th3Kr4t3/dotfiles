@@ -53,7 +53,16 @@ step "Strict Claude Code sandbox and its dependencies"
 jq -e '.sandbox | .enabled and .failIfUnavailable and (.allowUnsandboxedCommands == false)' \
   ~/.claude/settings.json >/dev/null
 command -v bwrap >/dev/null && command -v socat >/dev/null
+jq -e '.sandbox.network.allowedDomains | index("*.jdx.dev")' ~/.claude/settings.json >/dev/null
 echo "sandbox: ok"
+
+step "Non-interactive zsh resolves mise tools per folder (what Claude Code sees)"
+zsh -c 'command -v uv >/dev/null && uv --version >/dev/null'
+mkdir -p /tmp/pinned && printf '[tools]\nnode = "22"\n' > /tmp/pinned/.mise.toml
+~/.local/bin/mise trust -q /tmp/pinned/.mise.toml
+zsh -c 'cd /tmp/pinned && node --version' | grep -q '^v22\.'
+zsh -c 'cd ~ && node --version' | grep -qv '^v22\.'
+echo "mise shims: ok"
 
 step "SSH config is private"
 [ "$(stat -c %a ~/.ssh)" = 700 ] && [ "$(stat -c %a ~/.ssh/config)" = 600 ]

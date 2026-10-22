@@ -87,7 +87,8 @@
     "allowedDomains": [
       "github.com", "*.github.com", "*.githubusercontent.com",
       "registry.npmjs.org", "pypi.org", "files.pythonhosted.org", "nodejs.org",
-      "crates.io", "*.crates.io", "proxy.golang.org", "sum.golang.org"
+      "crates.io", "*.crates.io", "proxy.golang.org", "sum.golang.org",
+      "*.jdx.dev"
     ]
   }
 }` -}}

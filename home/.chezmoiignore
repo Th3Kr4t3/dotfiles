@@ -1,6 +1,7 @@
 {{- if ne .chezmoi.os "linux" }}
 .bashrc
 .zshrc
+.zshenv
 .gitconfig
 .ssh
 .config/shell

@@ -110,10 +110,12 @@ Deny rules are guardrails: they match the usual command forms, and `sh -c "sudo 
 |---|---|
 | Writes | Only the project folder, the temp directory, and package caches (`~/.cache`, `~/.npm`, pnpm, mise, cargo, go) |
 | Reads | Everything except `~/.ssh`, Bitwarden's data, and Claude's credentials |
-| Network | GitHub and the npm, PyPI, Node, crates, and Go registries; any other host asks first |
+| Network | GitHub, mise (`*.jdx.dev`), and the npm, PyPI, Node, crates, and Go registries; any other host asks first |
 | `allowUnsandboxedCommands: false` | Claude can't retry a failed command outside the sandbox |
 | `failIfUnavailable: true` | If the sandbox can't start, Claude Code refuses to run instead of running unprotected |
 | `excludedCommands` | `docker compose/ps/logs` (docker can't run sandboxed) and `git push/pull/fetch` (SSH doesn't go through the proxy). They run outside the sandbox and ask first |
+
+Claude's commands never show a prompt, so `mise activate` never switches versions for them. mise's shims are on the PATH of every zsh (`~/.zshenv`) and resolve each tool from the current folder's `.mise.toml`, so Claude gets the same per-project versions you do.
 
 It applies only to Claude Code running **inside WSL**: native Windows has no sandbox, and containers already isolate (bubblewrap can't start inside Docker). Claude's own Read and Edit tools aren't sandboxed; the deny rules cover them. Run `/sandbox` in a session to inspect it.
 
@@ -186,6 +188,7 @@ To change a decision, edit its row in the same commit as the change, and explain
     ├── .chezmoiignore         # which files go to Windows, Linux, and containers
     ├── dot_zshrc              # default shell
     ├── dot_bashrc             # fallback shell
+    ├── dot_zshenv             # PATH for every zsh, including non-interactive ones (mise shims for Claude Code)
     ├── dot_gitconfig.tmpl
     ├── dot_config/shell/      # aliases + tool init shared by zsh and bash
     ├── dot_config/mise/       # global tool versions

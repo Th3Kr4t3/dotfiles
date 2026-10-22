@@ -1,9 +1,15 @@
 # Shared by zsh and bash, so containers without zsh get the same experience.
 
-case ":$PATH:" in
-  *":$HOME/.local/bin:"*) ;;
-  *) export PATH="$HOME/.local/bin:$PATH" ;;
-esac
+# mise shims let non-interactive commands (Claude Code, IDE tasks) resolve per-project tool
+# versions; in an interactive shell, `mise activate` below takes precedence over them.
+for dir in "$HOME/.local/share/mise/shims" "$HOME/.local/bin"; do
+  case ":$PATH:" in
+    *":$dir:"*) ;;
+    *) PATH="$dir:$PATH" ;;
+  esac
+done
+export PATH
+unset dir
 
 # One ssh-agent shared by every shell. The key is added on first use (AddKeysToAgent),
 # so the passphrase is asked once per WSL boot. Forwarded agents (Codespaces) are left alone.

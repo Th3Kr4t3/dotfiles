@@ -1,0 +1,11 @@
+# ~/.zshenv (managed by chezmoi). zsh reads it for every shell, including non-interactive ones
+# such as Claude Code's Bash tool. Those never show a prompt, so `mise activate` never runs its
+# hook there; mise's shims resolve each tool from the current folder's .mise.toml instead.
+for dir in "$HOME/.local/share/mise/shims" "$HOME/.local/bin"; do
+  case ":$PATH:" in
+    *":$dir:"*) ;;
+    *) PATH="$dir:$PATH" ;;
+  esac
+done
+export PATH
+unset dir
