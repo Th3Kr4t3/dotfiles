@@ -43,6 +43,8 @@ step "Agent instructions and Claude Code guardrails"
 grep -qx '@AGENTS.md' ~/projects/CLAUDE.md
 test -f ~/projects/AGENTS.md
 test -f ~/.claude/CLAUDE.md
+grep -q '^name: onboard$' ~/.claude/skills/onboard/SKILL.md
+grep -q '^name: handoff$' ~/.claude/skills/handoff/SKILL.md
 jq -e '.permissions.deny | index("Bash(sudo *)")' ~/.claude/settings.json >/dev/null
 jq -e '.permissions.ask | index("Bash(chezmoi apply *)")' ~/.claude/settings.json >/dev/null
 echo "agents: ok"

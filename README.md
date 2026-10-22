@@ -91,6 +91,12 @@ Never `chezmoi add` a file that contains a secret as is. Add it with `--template
 | `~/projects/AGENTS.md` | Claude Code (through `~/projects/CLAUDE.md`, whose only line is `@AGENTS.md`), Cursor (through its User Rules), and other agents | Shared workspace rules: isolation, layout, ports, promotion checklist |
 | `~/.claude/CLAUDE.md` | Claude Code, in WSL and on Windows | Personal instructions: language, English coaching, machine changes |
 | `~/.claude/settings.json` (WSL) | Claude Code | `deny` and `ask` rules, plus the strict sandbox below. It's a modify template, so settings Claude Code writes itself are kept |
+| `~/.claude/skills/onboard`, `~/.claude/skills/handoff` | Claude Code, in WSL and on Windows | Session commands that only you can invoke (see below) |
+
+**Session workflow.** Open a project from the Ubuntu terminal (`cd ~/projects/<folder>/<name> && claude`), then:
+
+- `/onboard [goal]` checks that it's running in WSL (on Windows it stops and tells you to reopen from Ubuntu), reads the workspace and project rules, the history, and the tests, reports where the project stands, proposes next steps, and waits. On an empty folder, it asks for the stack and proposes the initial setup.
+- `/handoff [notes]` writes a short "Current status" section in the project's `AGENTS.md` and commits it, so the next `/onboard` picks up from there.
 
 **Cursor** reads the `AGENTS.md` at the root of the project you open, not the one in `~/projects`. Its global User Rules live in its own settings, not in a file, so they can't be managed here. Do this once per machine: in Cursor, go to Settings → Rules → User Rules and add:
 
@@ -187,7 +193,7 @@ To change a decision, edit its row in the same commit as the change, and explain
     ├── private_dot_ssh/       # SSH config for GitHub (keys are never stored)
     ├── projects/AGENTS.md     # layout + isolation rules for every agent in ~/projects
     ├── projects/CLAUDE.md     # one line: @AGENTS.md
-    ├── dot_claude/            # Claude Code: global instructions + deny/ask rules
+    ├── dot_claude/            # Claude Code: global instructions, deny/ask rules, sandbox, /onboard + /handoff
     ├── dot_wslconfig          # Windows: WSL resource limits
     ├── AppData/               # Windows: Terminal (modify template) + Cursor settings
     └── .chezmoiscripts/
