@@ -1,0 +1,12 @@
+# ~/.bashrc (managed by chezmoi). Bash is the fallback; zsh is the default shell.
+
+case $- in *i*) ;; *) return ;; esac
+
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=10000
+HISTFILESIZE=20000
+shopt -s histappend checkwinsize globstar
+
+[ -f /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
+
+. ~/.config/shell/common.sh

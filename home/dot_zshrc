@@ -1,0 +1,23 @@
+# ~/.zshrc (managed by chezmoi; edit with `chezmoi edit ~/.zshrc`)
+
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS EXTENDED_HISTORY
+setopt AUTO_CD INTERACTIVE_COMMENTS
+bindkey -e
+
+mkdir -p ~/.cache
+autoload -Uz compinit && compinit -d ~/.cache/zcompdump
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' menu select
+
+source ~/.config/shell/common.sh
+
+# Plugins from apt. Syntax highlighting must load last.
+for plugin in \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  [ -r "$plugin" ] && source "$plugin"
+done
+unset plugin

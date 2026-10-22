@@ -1,0 +1,22 @@
+{{- /* Per-machine data. Prompts run once; answers are stored in ~/.config/chezmoi/chezmoi.toml. */ -}}
+{{- $name := promptStringOnce . "name" "Git name" "Miguel Castillo" -}}
+{{- $email := promptStringOnce . "email" "Git email" "31254901+Th3Kr4t3@users.noreply.github.com" -}}
+
+{{- $isContainer := false -}}
+{{- if or (stat "/.dockerenv") (stat "/run/.containerenv") (env "CODESPACES") (env "REMOTE_CONTAINERS") -}}
+{{-   $isContainer = true -}}
+{{- end -}}
+
+{{- /* Containers on a WSL host share its kernel, so rule them out first. */ -}}
+{{- $isWSL := false -}}
+{{- if and (eq .chezmoi.os "linux") (not $isContainer) -}}
+{{-   if .chezmoi.kernel.osrelease | lower | contains "microsoft" -}}
+{{-     $isWSL = true -}}
+{{-   end -}}
+{{- end -}}
+
+[data]
+  name = {{ $name | quote }}
+  email = {{ $email | quote }}
+  isContainer = {{ $isContainer }}
+  isWSL = {{ $isWSL }}

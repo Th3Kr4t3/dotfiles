@@ -1,0 +1,12 @@
+{{- if ne .chezmoi.os "linux" }}
+.bashrc
+.zshrc
+.gitconfig
+.config/shell
+.config/mise
+.chezmoiscripts/linux/**
+{{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+.chezmoiscripts/windows/**
+{{- end }}

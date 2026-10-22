@@ -1,0 +1,5 @@
+# Global fallbacks only. Each project pins its own versions in .mise.toml.
+[tools]
+node = "lts"
+starship = "latest"
+uv = "latest"

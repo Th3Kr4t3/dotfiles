@@ -2,7 +2,32 @@
 
 My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
 
-> **Status:** Phase 1 done (decisions + inventory). Nothing is applied by chezmoi yet.
+> **Status:** Phase 2 done. WSL shell (zsh + bash fallback), git, mise, and apt packages are managed, and the bootstrap is tested on a clean Ubuntu 26.04 container.
+
+## Usage
+
+**New machine (WSL / Linux), one command:**
+
+```sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin init --apply Th3Kr4t3
+```
+
+**Day to day:**
+
+| Task | Command |
+|---|---|
+| Preview what would change | `chezmoi diff` |
+| Edit a managed file | `chezmoi edit ~/.zshrc`, then `chezmoi apply` |
+| Start managing a new file | `chezmoi add ~/.config/foo` |
+| Pull from GitHub and apply | `chezmoi update` |
+| Go to this repo | `dots` (alias for `chezmoi cd`) |
+| Add an apt package | Edit `home/.chezmoiscripts/linux/run_onchange_before_10-apt-packages.sh`; it re-runs on the next apply |
+
+**Test on a clean Ubuntu** (from the repo root):
+
+```sh
+docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
+```
 
 ## Goal
 
@@ -35,27 +60,30 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 
 To change a decision, edit its row in the same commit as the change, and explain why in the commit message.
 
-## Planned layout
+## Layout
 
 ```
 .
 ├── README.md
-├── docs/inventory.md        # what is managed, where, and how
-├── .chezmoiroot             # contains "home"
-└── home/                    # everything chezmoi applies
-    ├── .chezmoi.toml.tmpl   # per-machine data (name, email, os/wsl flags)
-    ├── .chezmoiignore       # which files go to Windows vs WSL
-    ├── dot_zshrc
+├── docs/inventory.md          # what is managed, where, and how
+├── tests/bootstrap-test.sh    # clean-Ubuntu bootstrap check
+├── .chezmoiroot               # contains "home"
+└── home/                      # everything chezmoi applies
+    ├── .chezmoi.toml.tmpl     # per-machine data: name, email, isWSL, isContainer
+    ├── .chezmoiignore         # which files go to Windows vs Linux
+    ├── dot_zshrc              # default shell
+    ├── dot_bashrc             # fallback shell
     ├── dot_gitconfig.tmpl
-    ├── dot_config/
-    └── .chezmoiscripts/     # run_onchange_ install scripts
+    ├── dot_config/shell/      # aliases + tool init shared by zsh and bash
+    ├── dot_config/mise/       # global tool versions
+    └── .chezmoiscripts/linux/ # apt packages, mise, ~/projects, default shell
 ```
 
 ## Roadmap
 
 - [x] **Phase 0:** decisions
 - [x] **Phase 1:** inventory ([docs/inventory.md](docs/inventory.md))
-- [ ] **Phase 2:** MVP on WSL (zsh, git, mise, apt), tested on a throwaway distro
+- [x] **Phase 2:** MVP on WSL (zsh, git, mise, apt), tested on a clean container
 - [ ] **Phase 3:** Windows side (`.wslconfig`, Terminal, Cursor, winget configure)
 - [ ] **Phase 4:** secrets + SSH (Bitwarden, age, gitleaks)
 - [ ] **Phase 5:** AI agents (`AGENTS.md`, Claude Code, Cursor)

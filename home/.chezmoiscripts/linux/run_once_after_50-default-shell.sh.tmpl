@@ -1,0 +1,11 @@
+{{- if not .isContainer -}}
+#!/usr/bin/env bash
+# Containers pick their own shell (devcontainer.json), so this only runs on real machines.
+set -euo pipefail
+
+zsh_path="$(command -v zsh)"
+user="$(id -un)"
+if [ "$(getent passwd "$user" | cut -d: -f7)" != "$zsh_path" ]; then
+  sudo chsh -s "$zsh_path" "$user"
+fi
+{{- end }}
