@@ -31,6 +31,11 @@ check_shell() {
   '
 }
 
+step "Projects workspace has its rules and folders"
+test -f ~/projects/CLAUDE.md
+for d in sandbox courses clients prod; do test -d ~/projects/"$d"; done
+echo "projects: ok"
+
 step "Interactive shells load tools and aliases"
 check_shell zsh
 check_shell bash

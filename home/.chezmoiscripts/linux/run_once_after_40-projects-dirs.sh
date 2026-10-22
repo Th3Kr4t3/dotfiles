@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p ~/projects/{personal,web,mobile,sandbox}
+# Layout and rules: ~/projects/CLAUDE.md
+mkdir -p ~/projects/{sandbox,courses,clients,prod}

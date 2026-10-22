@@ -4,6 +4,7 @@
 .gitconfig
 .config/shell
 .config/mise
+projects
 .chezmoiscripts/linux/**
 {{- end }}
 

@@ -76,7 +76,8 @@ To change a decision, edit its row in the same commit as the change, and explain
     ├── dot_gitconfig.tmpl
     ├── dot_config/shell/      # aliases + tool init shared by zsh and bash
     ├── dot_config/mise/       # global tool versions
-    └── .chezmoiscripts/linux/ # apt packages, mise, ~/projects, default shell
+    ├── projects/CLAUDE.md     # layout + isolation rules for every project in ~/projects
+    └── .chezmoiscripts/linux/ # apt packages, mise, ~/projects folders, default shell
 ```
 
 ## Roadmap
