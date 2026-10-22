@@ -34,6 +34,12 @@ for p in ~/.ssh ~/.config/mise ~/projects ~/.local/bin/mise; do
 done
 echo "machine-only parts skipped: ok"
 
+# bubblewrap can't start inside Docker; with failIfUnavailable, Claude Code wouldn't launch.
+if grep -q '"sandbox"' ~/.claude/settings.json; then
+  echo "the Claude Code sandbox must stay off in containers"; exit 1
+fi
+echo "sandbox off in containers: ok"
+
 check_shell() {
   "$1" -i -c '
     for t in starship zoxide fzf rg; do

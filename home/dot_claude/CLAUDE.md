@@ -21,3 +21,4 @@ Then answer my request normally. In technical conversations, favor vocabulary fo
 
 - Don't change the machine directly (global installs, shell or git config, files outside the current project) unless I explicitly ask you to.
 - The machine is managed by my dotfiles: chezmoi, source in `~/.local/share/chezmoi`, also called "Project F". Propose machine changes there; I review and apply them.
+- In WSL, your Bash commands run in a strict sandbox: they can only write inside the project (plus package caches), and network access is limited to an allowlist. If a command fails with `Read-only file system` or a blocked host, that's the sandbox working. Don't look for a workaround: tell me what the command needed, and I'll decide whether to change the dotfiles.

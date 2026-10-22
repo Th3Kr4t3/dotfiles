@@ -62,4 +62,35 @@
 
 {{- $s = setValueAtPath "permissions.deny" $deny $s -}}
 {{- $s = setValueAtPath "permissions.ask" $ask $s -}}
+
+{{- /* Strict Bash sandbox, enforced by the OS (bubblewrap): writes stay in the project.
+       Only on real machines: a container already isolates, and bubblewrap can't start inside
+       Docker, so failIfUnavailable would stop Claude Code from launching there. */ -}}
+{{- if not .isContainer -}}
+{{-   $sandbox := fromJson `{
+  "enabled": true,
+  "failIfUnavailable": true,
+  "allowUnsandboxedCommands": false,
+  "excludedCommands": [
+    "docker compose *", "docker ps *", "docker logs *",
+    "git push *", "git pull *", "git fetch *"
+  ],
+  "filesystem": {
+    "allowWrite": [
+      "~/.cache", "~/.npm", "~/.local/share/pnpm",
+      "~/.local/share/mise", "~/.local/state/mise",
+      "~/.cargo/registry", "~/go/pkg/mod"
+    ],
+    "denyRead": ["~/.ssh", "~/.config/Bitwarden CLI", "~/.claude/.credentials.json"]
+  },
+  "network": {
+    "allowedDomains": [
+      "github.com", "*.github.com", "*.githubusercontent.com",
+      "registry.npmjs.org", "pypi.org", "files.pythonhosted.org", "nodejs.org",
+      "crates.io", "*.crates.io", "proxy.golang.org", "sum.golang.org"
+    ]
+  }
+}` -}}
+{{-   $s = setValueAtPath "sandbox" $sandbox $s -}}
+{{- end -}}
 {{ toPrettyJson $s }}

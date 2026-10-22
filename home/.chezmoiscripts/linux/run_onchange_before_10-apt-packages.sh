@@ -6,6 +6,7 @@ packages=(
   bat build-essential ca-certificates curl fd-find fzf git htop jq
   ripgrep tree unzip wget zip zoxide
   zsh zsh-autosuggestions zsh-syntax-highlighting
+  bubblewrap socat  # Claude Code's Bash sandbox
 )
 
 SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"

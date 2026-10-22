@@ -8,7 +8,7 @@ One repo, three profiles:
 
 | Profile | Where | What it sets up |
 |---|---|---|
-| **Machine** | WSL / Linux | zsh (bash as fallback) with shared aliases, git, SSH config, mise tools (node, uv, starship, gh, gitleaks, Bitwarden CLI), apt packages, `~/projects` with its agent rules, Claude Code guardrails |
+| **Machine** | WSL / Linux | zsh (bash as fallback) with shared aliases, git, SSH config, mise tools (node, uv, starship, gh, gitleaks, Bitwarden CLI), apt packages, `~/projects` with its agent rules, Claude Code guardrails and a strict Bash sandbox |
 | **Windows** | The Windows host | `.wslconfig`, Windows Terminal, Cursor settings and extensions, dev apps via winget, a Start Menu shortcut (Ctrl+Alt+T), a Quick Access pin |
 | **Container** | Codespaces, dev containers | The shell experience only: zsh/bash config, starship, fzf, zoxide, ripgrep, git, Claude settings. Applies in about 20 seconds |
 
@@ -90,13 +90,26 @@ Never `chezmoi add` a file that contains a secret as is. Add it with `--template
 |---|---|---|
 | `~/projects/AGENTS.md` | Claude Code (through `~/projects/CLAUDE.md`, whose only line is `@AGENTS.md`), Cursor (through its User Rules), and other agents | Shared workspace rules: isolation, layout, ports, promotion checklist |
 | `~/.claude/CLAUDE.md` | Claude Code, in WSL and on Windows | Personal instructions: language, English coaching, machine changes |
-| `~/.claude/settings.json` (WSL) | Claude Code | `deny` and `ask` rules that enforce the most critical rules. It's a modify template, so settings Claude Code writes itself are kept |
+| `~/.claude/settings.json` (WSL) | Claude Code | `deny` and `ask` rules, plus the strict sandbox below. It's a modify template, so settings Claude Code writes itself are kept |
 
 **Cursor** reads the `AGENTS.md` at the root of the project you open, not the one in `~/projects`. Its global User Rules live in its own settings, not in a file, so they can't be managed here. Do this once per machine: in Cursor, go to Settings → Rules → User Rules and add:
 
 > Before changing anything, read and follow the shared workspace rules in `~/projects/AGENTS.md` (in WSL).
 
-**Guardrails, not a security boundary.** Deny rules match the usual command forms; `sh -c "sudo ..."` or a full program path won't match. For hard enforcement, Claude Code's sandbox restricts writes to the project folder at the OS level.
+### Sandbox (WSL)
+
+Deny rules are guardrails: they match the usual command forms, and `sh -c "sudo ..."` or a full program path won't match. The real boundary is Claude Code's **Bash sandbox**, enforced by the OS through bubblewrap, in strict mode:
+
+| Setting | Effect |
+|---|---|
+| Writes | Only the project folder, the temp directory, and package caches (`~/.cache`, `~/.npm`, pnpm, mise, cargo, go) |
+| Reads | Everything except `~/.ssh`, Bitwarden's data, and Claude's credentials |
+| Network | GitHub and the npm, PyPI, Node, crates, and Go registries; any other host asks first |
+| `allowUnsandboxedCommands: false` | Claude can't retry a failed command outside the sandbox |
+| `failIfUnavailable: true` | If the sandbox can't start, Claude Code refuses to run instead of running unprotected |
+| `excludedCommands` | `docker compose/ps/logs` (docker can't run sandboxed) and `git push/pull/fetch` (SSH doesn't go through the proxy). They run outside the sandbox and ask first |
+
+It applies only to Claude Code running **inside WSL**: native Windows has no sandbox, and containers already isolate (bubblewrap can't start inside Docker). Claude's own Read and Edit tools aren't sandboxed; the deny rules cover them. Run `/sandbox` in a session to inspect it.
 
 ## Testing and CI
 
@@ -147,6 +160,7 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 | 8 | Decision log | This table + commit messages | No ADRs for a personal repo. Any change can be undone with `git revert`. |
 | 9 | Containers | A light profile through `install.sh`: no mise, no `~/.ssh` | The project's image owns the toolchain, and Codespaces brings its own SSH agent. Containers only need the shell experience. |
 | 10 | CI | GitHub Actions running the same Docker tests as local, with actions pinned by commit SHA | One test suite for laptop and CI. Pinning by SHA protects a public repo from a hijacked action tag. |
+| 11 | Agent isolation | Claude Code's Bash sandbox in strict mode (no unsandboxed retries, fail if unavailable), machine profile only | Turns "every change stays in the project" from a request into an OS-enforced rule. Narrow `excludedCommands` for docker and git over SSH, because a broad exclusion would grant full access. |
 
 To change a decision, edit its row in the same commit as the change, and explain why in the commit message.
 
@@ -192,4 +206,4 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 6:** dev containers + Codespaces (`install.sh`, light container profile, Cursor dev containers)
 - [x] **Phase 7:** CI (gitleaks + both profile tests) and this final README
 
-**Ideas for later:** enable Claude Code's sandbox in WSL so the isolation rule is enforced by the OS; render the Windows templates in CI on a Windows runner; time a full bootstrap on a fresh Windows install.
+**Ideas for later:** render the Windows templates in CI on a Windows runner; time a full bootstrap on a fresh Windows install.

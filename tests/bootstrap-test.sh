@@ -47,6 +47,12 @@ jq -e '.permissions.deny | index("Bash(sudo *)")' ~/.claude/settings.json >/dev/
 jq -e '.permissions.ask | index("Bash(chezmoi apply *)")' ~/.claude/settings.json >/dev/null
 echo "agents: ok"
 
+step "Strict Claude Code sandbox and its dependencies"
+jq -e '.sandbox | .enabled and .failIfUnavailable and (.allowUnsandboxedCommands == false)' \
+  ~/.claude/settings.json >/dev/null
+command -v bwrap >/dev/null && command -v socat >/dev/null
+echo "sandbox: ok"
+
 step "SSH config is private"
 [ "$(stat -c %a ~/.ssh)" = 700 ] && [ "$(stat -c %a ~/.ssh/config)" = 600 ]
 echo "ssh: ok"
