@@ -37,6 +37,7 @@ A scan for secret-looking values in the current shell and git config found nothi
 | `~\.wslconfig` | 20 GB RAM, 12 CPUs, 8 GB swap, autoMemoryReclaim, sparseVhd | ✅ Manage (Windows-only target) | 3 |
 | Windows Terminal `settings.json` | Ubuntu as default profile, starts in `~`, `useExisting` windowing | ✅ Manage. Terminal rewrites this file itself, so use a `modify_` script rather than a full copy | 3 |
 | Start Menu shortcut "Ubuntu Dev" (Ctrl+Alt+T) | Created by `setup.ps1` | 📜 `run_once_` PowerShell script | 3 |
+| Quick Access pin for `\\wsl.localhost\Ubuntu-26.04\home\user\projects` | Pinned by hand on 2026-10-22 | 📜 `run_once_` PowerShell script | 3 |
 | Cursor `%APPDATA%\Cursor\User\settings.json` | Exists | ✅ Manage | 3 |
 | Cursor extensions | anysphere.remote-ssh, anysphere.remote-wsl | 📜 `run_onchange_` with the extension list | 3 |
 | `~\.cursor\agents`, `~\.cursor\skills-cursor` | Cursor agent config | ✅ Review in Phase 5 (shared AI rules) | 5 |

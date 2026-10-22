@@ -19,4 +19,5 @@ alias p='cd ~/projects'
 alias gs='git status -sb'
 alias gl='git log --oneline --graph -20'
 alias c='cursor .'
+command -v explorer.exe >/dev/null 2>&1 && alias e='explorer.exe .'   # WSL only: open folder in Explorer
 alias dots='chezmoi cd'
