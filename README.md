@@ -2,7 +2,7 @@
 
 My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with [chezmoi](https://www.chezmoi.io).
 
-> **Status:** Phases 0–3 done, Phase 4 in progress.
+> **Status:** Phases 0–4 done.
 > **WSL:** shell (zsh + bash fallback), git, SSH config, mise tools (including gh and gitleaks), and apt packages.
 > **Windows:** `.wslconfig`, Windows Terminal, Cursor, dev apps (winget), the Start Menu shortcut, and the Quick Access pin.
 > The Linux bootstrap is tested on a clean Ubuntu 26.04 container.
@@ -40,12 +40,30 @@ My development environment as code: **Windows 11 + WSL2 (Ubuntu)**, managed with
 | Add a Windows app | Edit `home/.chezmoiscripts/windows/run_onchange_before_10-winget-apps.ps1` |
 | Apply changes on Windows | `chezmoi apply` in PowerShell (it reads the repo in WSL) |
 | Keep a setting you changed in Cursor's UI | `chezmoi re-add` in PowerShell, then commit in WSL |
+| Check for secrets before pushing | `gitleaks git .` from the repo root |
 
 **Test on a clean Ubuntu** (from the repo root):
 
 ```sh
 docker run --rm -v "$PWD":/src:ro ubuntu:26.04 bash /src/tests/bootstrap-test.sh
 ```
+
+## Secrets
+
+- **Project secrets** (API keys for a single app) live in that project's `.env`, which is gitignored. They never go in the dotfiles.
+- **Machine-wide secrets** live in Bitwarden. chezmoi reads them at apply time, so the repo only ever contains a reference to them.
+
+To add one:
+
+1. Log in once per machine with `bw login`. If your account is on the EU server, first run `bw config server https://vault.bitwarden.eu`.
+2. Store the secret in Bitwarden, for example as a login item named `npm-token`.
+3. Reference it from a template (a source file ending in `.tmpl`):
+   ```
+   //registry.npmjs.org/:_authToken={{ (bitwarden "item" "npm-token").login.password }}
+   ```
+4. Run `chezmoi apply`. It unlocks the vault when needed and asks for the master password.
+
+Never `chezmoi add` a file that contains a secret as is. Add it with `--template` and replace the value with the Bitwarden call. Bitwarden's own state (`~/.config/Bitwarden CLI/`) is never managed.
 
 ## Goal
 
@@ -55,7 +73,7 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 
 1. A fresh Windows install is ready in **under 30 minutes**, with one command per OS.
 2. Running `chezmoi apply` twice in a row changes nothing the second time (idempotent).
-3. **Zero secrets** in the repo, enforced by gitleaks in pre-commit and CI.
+3. **Zero secrets** in the repo. Secrets come from Bitwarden at apply time, and gitleaks scans the history before every push (and in CI, Phase 7).
 4. The same shell experience in WSL, dev containers, and Codespaces.
 5. AI agent rules are versioned and shared between Claude Code and Cursor.
 6. CI tests the bootstrap on a clean Ubuntu on every push.
@@ -69,7 +87,7 @@ Any of my environments (this PC, a new PC, a dev container, or Codespaces) is re
 |---|---|---|---|
 | 1 | Dotfiles manager | chezmoi | The only tool that covers Windows + WSL + containers with templates, secrets, and `run_onchange_` scripts in a single binary. |
 | 2 | Repo visibility | Public | Portfolio value. Safe because personal data comes from templates and secrets from Bitwarden. |
-| 3 | Secrets | Bitwarden (`bw` CLI), plus age for static files | Already in use, and free. Nothing secret is ever committed in plain text. |
+| 3 | Secrets | Bitwarden (`bw` CLI). age only if a whole file ever needs encrypting | Already in use, and free. Nothing secret is ever committed in plain text. No gitleaks pre-commit hook: a manual scan before each push, plus CI, is enough for now. |
 | 4 | Shell (WSL) | zsh, with no framework (no oh-my-zsh) | Better completion. Plugins come from apt. Aliases live in one shared file that bash can also source, so containers without zsh still work. |
 | 5 | Windows apps | Dev tools only, installed by a `winget install` script | Games and hardware utilities are personal, not part of the environment. `winget configure` was dropped because it needs an admin-only enable step and PowerShell DSC modules on every new PC. |
 | 6 | Repo layout | `.chezmoiroot` → `home/` | Keeps the README, docs, and CI out of `$HOME`. |
@@ -108,7 +126,7 @@ To change a decision, edit its row in the same commit as the change, and explain
 - [x] **Phase 1:** inventory ([docs/inventory.md](docs/inventory.md))
 - [x] **Phase 2:** MVP on WSL (zsh, git, mise, apt), tested on a clean container
 - [x] **Phase 3:** Windows side (`.wslconfig`, Terminal, Cursor, winget apps, shortcut, Quick Access)
-- [ ] **Phase 4:** secrets + SSH. Done: SSH config, gh, gitleaks history scan. Pending: Bitwarden, age, gitleaks pre-commit
+- [x] **Phase 4:** secrets + SSH (SSH config, gh, gitleaks scans, Bitwarden CLI wired into chezmoi). Dropped: the gitleaks pre-commit hook. Deferred: age, until there's a file to encrypt
 - [ ] **Phase 5:** AI agents (`AGENTS.md`, Claude Code, Cursor)
 - [ ] **Phase 6:** dev containers + Codespaces (`install.sh`)
 - [ ] **Phase 7:** CI + final docs

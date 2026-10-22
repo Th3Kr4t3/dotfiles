@@ -28,7 +28,7 @@ A scan for secret-looking values in the current shell and git config found nothi
 | `~/.claude.json` | Claude Code app state | ⛔ Exclude | – |
 | `~/.bash_history`, `~/.lesshst`, `~/.cache/`, `~/.landscape/`, `~/.motd_shown`, `~/.config/ubuntu-insights/` | Runtime state | ⛔ Exclude | – |
 | docker CLI | Provided by Docker Desktop's WSL integration | ⛔ Nothing to manage in WSL | – |
-| Missing tools | chezmoi, gh, bw, age, gitleaks | 📜 Install via mise or apt | 2 / 4 |
+| Missing tools | chezmoi, gh, bw, age, gitleaks | 📜 chezmoi via its installer; gh, gitleaks, and bw (`bitwarden`) via mise. age is deferred until there's a file to encrypt | 2 / 4 |
 
 ## Windows (`C:\Users\Usuario`)
 

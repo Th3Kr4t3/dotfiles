@@ -23,7 +23,7 @@ chezmoi data --source /src --format yaml | grep -E 'is(Container|WSL)'
 
 check_shell() {
   "$1" -i -c '
-    for t in mise starship node uv gh gitleaks zoxide fzf; do
+    for t in mise starship node uv gh gitleaks bw zoxide fzf; do
       command -v "$t" >/dev/null || { echo "missing: $t"; exit 1; }
     done
     alias gs >/dev/null || { echo "missing alias: gs"; exit 1; }

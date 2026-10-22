@@ -23,6 +23,10 @@ sourceDir = {{ .chezmoi.workingTree | quote }}
   command = "powershell"
   args = ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
 {{ end }}
+# Templates that read Bitwarden unlock the vault on demand (asks for the master password).
+[bitwarden]
+  unlock = "auto"
+
 [data]
   name = {{ $name | quote }}
   email = {{ $email | quote }}
